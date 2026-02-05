@@ -1,12 +1,10 @@
 import { useState } from 'react';
-import { Dice1, Dice2, Dice3, Dice4, Dice5, Dice6, ArrowRight, Home, RotateCcw, Volume2, VolumeX, Sparkles } from 'lucide-react';
+import { ArrowRight, Home, RotateCcw, Volume2, VolumeX, Sparkles } from 'lucide-react';
 import GameBoard from './GameBoard';
 import TruthDareModal from './TruthDareModal';
 import WinnerModal from './WinnerModal';
 import { SNAKES, LADDERS, getSquareType, getDifficulty } from '../data/boardData';
 import { truthDareData } from '../data/gameData';
-
-const DICE_ICONS = [Dice1, Dice2, Dice3, Dice4, Dice5, Dice6];
 
 export default function Game({ players, gameMode, onBackToMenu, onRestart }) {
   const [gamePlayers, setGamePlayers] = useState(players);
@@ -19,12 +17,27 @@ export default function Game({ players, gameMode, onBackToMenu, onRestart }) {
   const [winner, setWinner] = useState(null);
   const [soundEnabled, setSoundEnabled] = useState(true);
   const [movingPlayer, setMovingPlayer] = useState(null);
+  const [clickedSquare, setClickedSquare] = useState(null);
 
   const currentPlayer = gamePlayers[currentPlayerIndex];
 
   const getRandomTruthDare = (type, difficulty) => {
     const data = truthDareData[gameMode][difficulty][type];
     return data[Math.floor(Math.random() * data.length)];
+  };
+
+  const handleSquareClick = (squareNumber) => {
+    setClickedSquare(squareNumber);
+  };
+
+  const handleTruthDareSquare = (squareNumber, type, difficulty) => {
+    // Only show modal if it's the current player's turn
+    const playerOnSquare = gamePlayers.find(p => p.position === squareNumber);
+    if (playerOnSquare && playerOnSquare.id === currentPlayer.id) {
+      const content = getRandomTruthDare(type, difficulty);
+      setCurrentTruthDare({ type, content, difficulty });
+      setShowTruthDare(true);
+    }
   };
 
   const rollDice = () => {
@@ -147,7 +160,27 @@ export default function Game({ players, gameMode, onBackToMenu, onRestart }) {
     setGameLog((prev) => [message, ...prev].slice(0, 8));
   };
 
-  const DiceIcon = DICE_ICONS[diceValue - 1];
+  // Render dice dots based on value
+  const renderDiceDots = (value) => {
+    const dots = [];
+    const dotSize = "w-2 h-2 md:w-3 md:h-3";
+    
+    for (let i = 0; i < value; i++) {
+      dots.push(
+        <div
+          key={i}
+          className={`${dotSize} bg-retro-cream rounded-full animate-retro-pop`}
+          style={{ animationDelay: `${i * 50}ms` }}
+        />
+      );
+    }
+    
+    return (
+      <div className="grid grid-cols-3 gap-1 p-2 md:p-3 place-items-center">
+        {dots}
+      </div>
+    );
+  };
 
   const handlePlayAgain = () => {
     const resetPlayers = players.map((p) => ({ ...p, position: 1 }));
@@ -238,7 +271,8 @@ export default function Game({ players, gameMode, onBackToMenu, onRestart }) {
             <GameBoard
               players={gamePlayers}
               currentPlayerIndex={currentPlayerIndex}
-              onSquareClick={() => {}}
+              onSquareClick={handleSquareClick}
+              onTruthDareSquare={handleTruthDareSquare}
             />
           </div>
 
@@ -255,7 +289,7 @@ export default function Game({ players, gameMode, onBackToMenu, onRestart }) {
                   retro-border w-16 h-16 md:w-24 md:h-24 bg-retro-black flex items-center justify-center transition-all duration-300
                   ${isRolling ? 'animate-retro-coin-spin' : ''}
                 `}>
-                  {!isRolling && <DiceIcon className="w-10 h-10 md:w-16 md:h-16 text-retro-cream" />}
+                  {!isRolling && renderDiceDots(diceValue)}
                 </div>
                 <button
                   onClick={rollDice}

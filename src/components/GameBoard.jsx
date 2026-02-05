@@ -1,7 +1,7 @@
 import { getSquareType, getSquareColor, getDifficulty, BOARD_SIZE, SNAKES, LADDERS } from '../data/boardData';
 import { ArrowDownToLine, TrendingUp } from 'lucide-react';
 
-export default function GameBoard({ players, currentPlayerIndex, onSquareClick }) {
+export default function GameBoard({ players, currentPlayerIndex, onSquareClick, onTruthDareSquare }) {
   // Buat grid 10x10
   const createGrid = () => {
     const grid = [];
@@ -46,7 +46,12 @@ export default function GameBoard({ players, currentPlayerIndex, onSquareClick }
             return (
               <div
                 key={squareNumber}
-                onClick={() => onSquareClick(squareNumber)}
+                onClick={() => {
+                  onSquareClick(squareNumber);
+                  if (type === 'truth' || type === 'dare') {
+                    onTruthDareSquare(squareNumber, type, diff);
+                  }
+                }}
                 className={`
                   ${color}
                   relative rounded-sm
@@ -56,6 +61,7 @@ export default function GameBoard({ players, currentPlayerIndex, onSquareClick }
                   hover:scale-110 hover:z-10 hover:shadow-lg
                   retro-font text-[10px] md:text-xs
                   ${isCurrentPlayerPosition ? 'animate-retro-pulse-glow z-10' : ''}
+                  ${(type === 'truth' || type === 'dare') ? 'animate-retro-pulse-glow' : ''}
                   animate-retro-slide-up
                 `}
                 style={{ animationDelay: `${(rowIndex * 10 + colIndex) * 10}ms` }}
