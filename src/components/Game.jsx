@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { Dice1, Dice2, Dice3, Dice4, Dice5, Dice6, ArrowRight, Home, RotateCcw, Volume2, VolumeX } from 'lucide-react';
+import { Dice1, Dice2, Dice3, Dice4, Dice5, Dice6, ArrowRight, Home, RotateCcw, Volume2, VolumeX, Sparkles } from 'lucide-react';
 import GameBoard from './GameBoard';
 import TruthDareModal from './TruthDareModal';
 import WinnerModal from './WinnerModal';
@@ -18,6 +18,7 @@ export default function Game({ players, gameMode, onBackToMenu, onRestart }) {
   const [currentTruthDare, setCurrentTruthDare] = useState(null);
   const [winner, setWinner] = useState(null);
   const [soundEnabled, setSoundEnabled] = useState(true);
+  const [movingPlayer, setMovingPlayer] = useState(null);
 
   const currentPlayer = gamePlayers[currentPlayerIndex];
 
@@ -27,11 +28,11 @@ export default function Game({ players, gameMode, onBackToMenu, onRestart }) {
   };
 
   const rollDice = () => {
-    if (isRolling) return;
+    if (isRolling || movingPlayer) return;
 
     setIsRolling(true);
     let rolls = 0;
-    const maxRolls = 10;
+    const maxRolls = 15;
 
     const rollInterval = setInterval(() => {
       const newDiceValue = Math.floor(Math.random() * 6) + 1;
@@ -43,71 +44,73 @@ export default function Game({ players, gameMode, onBackToMenu, onRestart }) {
         setIsRolling(false);
         movePlayer(newDiceValue);
       }
-    }, 100);
+    }, 80);
   };
 
   const movePlayer = (steps) => {
+    setMovingPlayer(currentPlayer.id);
     const newPosition = Math.min(currentPlayer.position + steps, 100);
 
-    setGamePlayers((prev) =>
-      prev.map((p) =>
-        p.id === currentPlayer.id ? { ...p, position: newPosition } : p
-      )
-    );
+    setTimeout(() => {
+      setGamePlayers((prev) =>
+        prev.map((p) =>
+          p.id === currentPlayer.id ? { ...p, position: newPosition } : p
+        )
+      );
+      addLog(`${currentPlayer.name} melempar dadu ${steps} dan pindah ke kotak ${newPosition}`);
 
-    addLog(`${currentPlayer.name} melempar dadu ${steps} dan pindah ke kotak ${newPosition}`);
-
-    // Cek menang
-    if (newPosition === 100) {
-      setWinner(currentPlayer);
-      return;
-    }
-
-    // Cek ular atau tangga
-    if (SNAKES[newPosition]) {
-      setTimeout(() => {
-        const snakeEnd = SNAKES[newPosition];
-        setGamePlayers((prev) =>
-          prev.map((p) =>
-            p.id === currentPlayer.id ? { ...p, position: snakeEnd } : p
-          )
-        );
-        addLog(`${currentPlayer.name} kena ular! Turun ke kotak ${snakeEnd}`);
-
-        // Tampilkan Truth/Dare dengan level hard
-        setTimeout(() => {
-          showTruthDareModal('hard');
-        }, 500);
-      }, 500);
-    } else if (LADDERS[newPosition]) {
-      setTimeout(() => {
-        const ladderEnd = LADDERS[newPosition];
-        setGamePlayers((prev) =>
-          prev.map((p) =>
-            p.id === currentPlayer.id ? { ...p, position: ladderEnd } : p
-          )
-        );
-        addLog(`${currentPlayer.name} naik tangga! Ke kotak ${ladderEnd}`);
-
-        // Skip Truth/Dare karena naik tangga
-        setTimeout(() => {
-          nextPlayer();
-        }, 500);
-      }, 500);
-    } else {
-      // Cek kotak Truth/Dare
-      const squareType = getSquareType(newPosition);
-      if (squareType === 'truth' || squareType === 'dare') {
-        const difficulty = getDifficulty(newPosition);
-        setTimeout(() => {
-          showTruthDareModal(difficulty, squareType);
-        }, 500);
-      } else {
-        setTimeout(() => {
-          nextPlayer();
-        }, 500);
+      if (newPosition === 100) {
+        setWinner(currentPlayer);
+        setMovingPlayer(null);
+        return;
       }
-    }
+
+      if (SNAKES[newPosition]) {
+        setTimeout(() => {
+          const snakeEnd = SNAKES[newPosition];
+          setGamePlayers((prev) =>
+            prev.map((p) =>
+              p.id === currentPlayer.id ? { ...p, position: snakeEnd } : p
+            )
+          );
+          addLog(`${currentPlayer.name} kena ular! Turun ke kotak ${snakeEnd}`);
+
+          setTimeout(() => {
+            showTruthDareModal('hard');
+            setMovingPlayer(null);
+          }, 800);
+        }, 800);
+      } else if (LADDERS[newPosition]) {
+        setTimeout(() => {
+          const ladderEnd = LADDERS[newPosition];
+          setGamePlayers((prev) =>
+            prev.map((p) =>
+              p.id === currentPlayer.id ? { ...p, position: ladderEnd } : p
+            )
+          );
+          addLog(`${currentPlayer.name} naik tangga! Ke kotak ${ladderEnd}`);
+
+          setTimeout(() => {
+            nextPlayer();
+            setMovingPlayer(null);
+          }, 800);
+        }, 800);
+      } else {
+        const squareType = getSquareType(newPosition);
+        if (squareType === 'truth' || squareType === 'dare') {
+          const difficulty = getDifficulty(newPosition);
+          setTimeout(() => {
+            showTruthDareModal(difficulty, squareType);
+            setMovingPlayer(null);
+          }, 800);
+        } else {
+          setTimeout(() => {
+            nextPlayer();
+            setMovingPlayer(null);
+          }, 800);
+        }
+      }
+    }, 500);
   };
 
   const showTruthDareModal = (difficulty, forceType = null) => {
@@ -141,7 +144,7 @@ export default function Game({ players, gameMode, onBackToMenu, onRestart }) {
   };
 
   const addLog = (message) => {
-    setGameLog((prev) => [message, ...prev].slice(0, 10));
+    setGameLog((prev) => [message, ...prev].slice(0, 8));
   };
 
   const DiceIcon = DICE_ICONS[diceValue - 1];
@@ -155,68 +158,73 @@ export default function Game({ players, gameMode, onBackToMenu, onRestart }) {
     setWinner(null);
     setCurrentTruthDare(null);
     setShowTruthDare(false);
+    setMovingPlayer(null);
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-purple-500 via-pink-500 to-red-500 p-4">
-      <div className="max-w-6xl mx-auto">
+    <div className="min-h-screen bg-retro-dark-blue retro-grid p-2 md:p-4">
+      <div className="max-w-7xl mx-auto">
         {/* Header */}
-        <div className="bg-white rounded-xl shadow-xl p-4 mb-4">
-          <div className="flex items-center justify-between">
-            <div className="flex items-center gap-4">
+        <div className="retro-card bg-retro-cream p-3 md:p-4 mb-4 animate-retro-fade-in">
+          <div className="flex items-center justify-between gap-2">
+            <div className="flex items-center gap-2 md:gap-4">
               <button
                 onClick={onBackToMenu}
-                className="p-2 bg-gray-100 hover:bg-gray-200 rounded-lg transition-colors"
+                className="retro-btn p-2 bg-retro-red text-retro-white rounded hover:bg-retro-red"
               >
-                <Home className="w-5 h-5" />
+                <Home className="w-4 h-4 md:w-5 md:h-5" />
               </button>
               <div>
-                <h1 className="text-xl font-bold text-gray-800">
-                  🎮 Ular Tangga Truth or Dare
+                <h1 className="retro-font text-sm md:text-lg font-bold text-retro-black retro-text-shadow">
+                  ULAR TANGGA ToD
                 </h1>
-                <p className="text-sm text-gray-600">Mode: {gameMode}</p>
+                <p className="retro-font-body text-[10px] md:text-xs text-retro-dark-gray">
+                  MODE: <span className="font-bold uppercase">{gameMode}</span>
+                </p>
               </div>
             </div>
 
             <div className="flex items-center gap-2">
               <button
                 onClick={() => setSoundEnabled(!soundEnabled)}
-                className="p-2 bg-gray-100 hover:bg-gray-200 rounded-lg transition-colors"
+                className="retro-btn p-2 bg-retro-teal text-retro-white rounded hover:bg-retro-teal"
               >
-                {soundEnabled ? <Volume2 className="w-5 h-5" /> : <VolumeX className="w-5 h-5" />}
+                {soundEnabled ? <Volume2 className="w-4 h-4 md:w-5 md:h-5" /> : <VolumeX className="w-4 h-4 md:w-5 md:h-5" />}
               </button>
               <button
                 onClick={handlePlayAgain}
-                className="p-2 bg-purple-100 hover:bg-purple-200 text-purple-700 rounded-lg transition-colors"
+                className="retro-btn p-2 bg-retro-yellow text-retro-black rounded hover:bg-retro-yellow"
               >
-                <RotateCcw className="w-5 h-5" />
+                <RotateCcw className="w-4 h-4 md:w-5 md:h-5" />
               </button>
             </div>
           </div>
         </div>
 
-        {/* Players Info */}
+        {/* Players Info - Responsive Grid */}
         <div className="grid grid-cols-2 md:grid-cols-4 gap-2 mb-4">
           {gamePlayers.map((player, index) => (
             <div
               key={player.id}
               className={`
-                bg-white rounded-xl p-3 shadow-lg transition-all
-                ${index === currentPlayerIndex ? 'ring-4 ring-purple-500 scale-105' : ''}
+                retro-card bg-retro-cream p-2 md:p-3 transition-all duration-300
+                ${index === currentPlayerIndex ? 'border-retro-orange scale-105 animate-retro-shake' : ''}
+                animate-retro-slide-up
               `}
+              style={{ animationDelay: `${index * 100}ms` }}
             >
               <div className="flex items-center gap-2">
-                <div className={`w-10 h-10 rounded-lg ${player.color} flex items-center justify-center text-white font-bold`}>
+                <div className={`retro-avatar w-8 h-8 md:w-10 md:h-10 bg-retro-black border-2 border-retro-black flex items-center justify-center text-white font-bold ${player.color}`}>
                   {player.id}
                 </div>
-                <div>
-                  <p className="font-semibold text-gray-800 text-sm">{player.name}</p>
-                  <p className="text-xs text-gray-600">Posisi: {player.position}</p>
+                <div className="flex-1 min-w-0">
+                  <p className="retro-font-body font-bold text-retro-black text-[10px] md:text-xs truncate">{player.name}</p>
+                  <p className="retro-font-body text-[8px] md:text-[10px] text-retro-dark-gray">POS: {player.position}</p>
                 </div>
               </div>
               {index === currentPlayerIndex && (
-                <div className="mt-2 bg-purple-100 text-purple-700 text-xs font-bold px-2 py-1 rounded-full text-center">
-                  Giliran Ini
+                <div className="mt-2 retro-badge bg-retro-orange text-retro-white text-[8px] md:text-[10px] font-bold text-center animate-retro-blink">
+                  TURN!
                 </div>
               )}
             </div>
@@ -226,7 +234,7 @@ export default function Game({ players, gameMode, onBackToMenu, onRestart }) {
         {/* Game Area */}
         <div className="grid lg:grid-cols-3 gap-4">
           {/* Game Board */}
-          <div className="lg:col-span-2">
+          <div className="lg:col-span-2 order-2 lg:order-1">
             <GameBoard
               players={gamePlayers}
               currentPlayerIndex={currentPlayerIndex}
@@ -235,43 +243,64 @@ export default function Game({ players, gameMode, onBackToMenu, onRestart }) {
           </div>
 
           {/* Controls */}
-          <div className="space-y-4">
+          <div className="space-y-4 order-1 lg:order-2">
             {/* Dice */}
-            <div className="bg-white rounded-xl shadow-xl p-6">
-              <h3 className="font-bold text-gray-800 mb-4 text-center">Lempar Dadu 🎲</h3>
-              <div className="flex flex-col items-center gap-4">
+            <div className="retro-card bg-retro-cream p-4 md:p-6 animate-retro-fade-in">
+              <h3 className="retro-font text-xs font-bold text-retro-black mb-3 md:mb-4 text-center flex items-center justify-center gap-2">
+                <Sparkles className="w-4 h-4 md:w-5 md:h-5 text-retro-orange animate-retro-pop" />
+                ROLL DICE
+              </h3>
+              <div className="flex flex-col items-center gap-3 md:gap-4">
                 <div className={`
-                  w-24 h-24 rounded-xl flex items-center justify-center transition-all
-                  ${isRolling ? 'animate-spin bg-purple-100' : 'bg-gradient-to-br from-purple-500 to-pink-500'}
+                  retro-border w-16 h-16 md:w-24 md:h-24 bg-retro-black flex items-center justify-center transition-all duration-300
+                  ${isRolling ? 'animate-retro-coin-spin' : ''}
                 `}>
-                  {!isRolling && <DiceIcon className="w-16 h-16 text-white" />}
+                  {!isRolling && <DiceIcon className="w-10 h-10 md:w-16 md:h-16 text-retro-cream" />}
                 </div>
                 <button
                   onClick={rollDice}
-                  disabled={isRolling}
+                  disabled={isRolling || movingPlayer}
                   className={`
-                    w-full py-3 px-6 rounded-lg font-bold text-lg transition-all flex items-center justify-center gap-2
-                    ${isRolling
-                      ? 'bg-gray-300 text-gray-500 cursor-not-allowed'
-                      : 'bg-gradient-to-r from-purple-500 to-pink-500 text-white hover:from-purple-600 hover:to-pink-600 shadow-lg hover:shadow-xl'
+                    retro-btn w-full py-3 px-6 retro-font text-xs md:text-sm flex items-center justify-center gap-2 rounded
+                    ${isRolling || movingPlayer
+                      ? 'bg-retro-gray text-retro-white cursor-not-allowed'
+                      : 'bg-retro-orange text-retro-white hover:bg-retro-red'
                     }
                   `}
                 >
-                  {isRolling ? 'Melempar...' : 'Lempar Dadu'}
-                  {!isRolling && <ArrowRight className="w-5 h-5" />}
+                  {isRolling ? (
+                    <span className="flex items-center gap-2">
+                      <div className="w-5 h-5 border-2 border-retro-white border-t-retro-black rounded-full animate-retro-coin-spin" />
+                      ROLLING...
+                    </span>
+                  ) : movingPlayer ? (
+                    <span>MOVING...</span>
+                  ) : (
+                    <span className="flex items-center gap-2">
+                      ROLL!
+                      <ArrowRight className="w-4 h-4 md:w-5 md:h-5" />
+                    </span>
+                  )}
                 </button>
               </div>
             </div>
 
             {/* Game Log */}
-            <div className="bg-white rounded-xl shadow-xl p-4">
-              <h3 className="font-bold text-gray-800 mb-3">Log Permainan</h3>
-              <div className="space-y-2 max-h-64 overflow-y-auto">
+            <div className="retro-card bg-retro-cream p-3 md:p-4 animate-retro-fade-in">
+              <h3 className="retro-font text-xs font-bold text-retro-black mb-2 md:mb-3 flex items-center gap-2">
+                <span className="animate-retro-blink">▶</span>
+                GAME LOG
+              </h3>
+              <div className="space-y-1.5 md:space-y-2 max-h-32 md:max-h-48 overflow-y-auto">
                 {gameLog.length === 0 ? (
-                  <p className="text-gray-500 text-sm text-center">Belum ada aktivitas</p>
+                  <p className="retro-font-body text-retro-dark-gray text-[10px] md:text-xs text-center py-4">NO ACTIVITY</p>
                 ) : (
                   gameLog.map((log, index) => (
-                    <div key={index} className="text-sm text-gray-700 bg-gray-50 rounded-lg p-2">
+                    <div 
+                      key={index} 
+                      className="retro-font-body text-[10px] md:text-xs text-retro-black bg-retro-white border-2 border-retro-black p-2 animate-retro-slide-up"
+                      style={{ animationDelay: `${index * 50}ms` }}
+                    >
                       {log}
                     </div>
                   ))

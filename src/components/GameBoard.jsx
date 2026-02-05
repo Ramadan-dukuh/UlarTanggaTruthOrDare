@@ -1,21 +1,17 @@
 import { getSquareType, getSquareColor, getDifficulty, BOARD_SIZE, SNAKES, LADDERS } from '../data/boardData';
-import { ArrowDownToLine, TrendingUp, CircleDot } from 'lucide-react';
+import { ArrowDownToLine, TrendingUp } from 'lucide-react';
 
 export default function GameBoard({ players, currentPlayerIndex, onSquareClick }) {
   // Buat grid 10x10
   const createGrid = () => {
     const grid = [];
-    // Urutan dari bawah ke atas, zigzag
     for (let row = 9; row >= 0; row--) {
       const rowSquares = [];
       for (let col = 0; col < 10; col++) {
-        // Hitung nomor kotak dengan pola zigzag
         let squareNumber;
         if (row % 2 === 0) {
-          // Baris genap: kiri ke kanan
           squareNumber = row * 10 + col + 1;
         } else {
-          // Baris ganjil: kanan ke kiri
           squareNumber = row * 10 + (9 - col) + 1;
         }
         rowSquares.push(squareNumber);
@@ -30,20 +26,22 @@ export default function GameBoard({ players, currentPlayerIndex, onSquareClick }
   const difficulty = (num) => getDifficulty(num);
   const squareColor = (num) => getSquareColor(squareType(num), difficulty(num));
 
-  // Dapatkan pemain di kotak tertentu
   const getPlayersAtSquare = (squareNumber) => {
     return players.filter((player) => player.position === squareNumber);
   };
 
   return (
-    <div className="bg-white p-4 rounded-xl shadow-2xl">
-      <div className="grid grid-cols-10 gap-1 w-full max-w-2xl mx-auto">
+    <div className="retro-card bg-retro-white p-2 md:p-4 rounded-lg animate-retro-fade-in retro-crt">
+      <div className="grid grid-cols-10 gap-0.5 md:gap-1 w-full aspect-square max-w-2xl mx-auto">
         {grid.map((row, rowIndex) => (
-          row.map((squareNumber) => {
+          row.map((squareNumber, colIndex) => {
             const type = squareType(squareNumber);
             const diff = difficulty(squareNumber);
             const color = squareColor(squareNumber);
             const playersAtSquare = getPlayersAtSquare(squareNumber);
+            const isCurrentPlayerPosition = players.some(
+              (p, idx) => p.position === squareNumber && idx === currentPlayerIndex
+            );
 
             return (
               <div
@@ -51,59 +49,58 @@ export default function GameBoard({ players, currentPlayerIndex, onSquareClick }
                 onClick={() => onSquareClick(squareNumber)}
                 className={`
                   ${color}
-                  relative aspect-square rounded-md 
+                  relative rounded-sm
                   flex items-center justify-center
                   cursor-pointer transition-all duration-200
-                  border-2 border-gray-300
-                  hover:scale-105 hover:shadow-lg
-                  font-bold text-xs
+                  border-2 border-retro-black
+                  hover:scale-110 hover:z-10 hover:shadow-lg
+                  retro-font text-[10px] md:text-xs
+                  ${isCurrentPlayerPosition ? 'animate-retro-pulse-glow z-10' : ''}
+                  animate-retro-slide-up
                 `}
+                style={{ animationDelay: `${(rowIndex * 10 + colIndex) * 10}ms` }}
               >
-                <span className="absolute top-0.5 left-1 text-gray-700">
+                <span className="absolute top-0.5 left-1 text-retro-black font-bold text-[8px] md:text-[10px]">
                   {squareNumber}
                 </span>
 
-                {/* Ikon ular */}
                 {type === 'snake' && (
-                  <div className="absolute inset-0 flex items-center justify-center">
-                    <ArrowDownToLine className="w-6 h-6 text-white" />
+                  <div className="absolute inset-0 flex items-center justify-center opacity-80">
+                    <ArrowDownToLine className="w-4 h-4 md:w-6 md:h-6 text-retro-white animate-retro-float" />
                   </div>
                 )}
 
-                {/* Ikon tangga */}
                 {type === 'ladder' && (
-                  <div className="absolute inset-0 flex items-center justify-center">
-                    <TrendingUp className="w-6 h-6 text-white" />
+                  <div className="absolute inset-0 flex items-center justify-center opacity-80">
+                    <TrendingUp className="w-4 h-4 md:w-6 md:h-6 text-retro-white animate-retro-float" />
                   </div>
                 )}
 
-                {/* Label Truth/Dare */}
                 {type === 'truth' && (
-                  <div className="absolute bottom-0.5 right-0.5">
-                    <span className="text-[8px] text-white font-bold px-1 bg-green-600 rounded">
+                  <div className="absolute bottom-0.5 right-0.5 animate-retro-pop">
+                    <span className="retro-font text-[6px] md:text-[8px] text-retro-white font-bold px-1 bg-retro-green retro-border-sm">
                       T
                     </span>
                   </div>
                 )}
                 {type === 'dare' && (
-                  <div className="absolute bottom-0.5 right-0.5">
-                    <span className="text-[8px] text-white font-bold px-1 bg-red-600 rounded">
+                  <div className="absolute bottom-0.5 right-0.5 animate-retro-pop">
+                    <span className="retro-font text-[6px] md:text-[8px] text-retro-white font-bold px-1 bg-retro-red retro-border-sm">
                       D
                     </span>
                   </div>
                 )}
 
-                {/* Pemain di kotak ini */}
                 {playersAtSquare.length > 0 && (
-                  <div className="absolute top-1 right-1 flex flex-wrap gap-0.5">
+                  <div className="absolute top-1 right-1 flex flex-wrap gap-0.5 animate-retro-bounce-in">
                     {playersAtSquare.map((player) => (
                       <div
                         key={player.id}
                         className={`
-                          w-4 h-4 rounded-full ${player.color}
-                          border-2 border-white shadow
+                          retro-avatar w-3 h-3 md:w-4 md:h-4 rounded-full ${player.color}
+                          border-2 border-retro-black
                           flex items-center justify-center
-                          text-[8px] text-white font-bold
+                          text-[6px] md:text-[8px] text-retro-white font-bold
                         `}
                         title={player.name}
                       >
@@ -113,16 +110,15 @@ export default function GameBoard({ players, currentPlayerIndex, onSquareClick }
                   </div>
                 )}
 
-                {/* Level difficulty badge */}
                 {(type === 'truth' || type === 'dare') && (
                   <div className="absolute bottom-0.5 left-0.5">
                     <span className={`
-                      text-[6px] px-1 rounded font-bold
-                      ${diff === 'easy' ? 'bg-blue-400 text-white' : ''}
-                      ${diff === 'medium' ? 'bg-yellow-400 text-white' : ''}
-                      ${diff === 'hard' ? 'bg-red-400 text-white' : ''}
+                      retro-font text-[5px] md:text-[6px] px-1 font-bold retro-border-sm
+                      ${diff === 'easy' ? 'bg-retro-blue text-retro-white' : ''}
+                      ${diff === 'medium' ? 'bg-retro-yellow text-retro-black' : ''}
+                      ${diff === 'hard' ? 'bg-retro-red text-retro-white' : ''}
                     `}>
-                      {diff === 'easy' ? '😄' : diff === 'medium' ? '😅' : '😳'}
+                      {diff === 'easy' ? 'E' : diff === 'medium' ? 'M' : 'H'}
                     </span>
                   </div>
                 )}
@@ -133,26 +129,26 @@ export default function GameBoard({ players, currentPlayerIndex, onSquareClick }
       </div>
 
       {/* Legend */}
-      <div className="mt-4 flex flex-wrap justify-center gap-3 text-xs">
-        <div className="flex items-center gap-1">
-          <div className="w-4 h-4 bg-gray-100 rounded border"></div>
-          <span>Normal</span>
+      <div className="mt-3 md:mt-4 flex flex-wrap justify-center gap-2 md:gap-3">
+        <div className="retro-badge bg-retro-white text-retro-black retro-font-body text-[10px] md:text-xs flex items-center gap-1">
+          <div className="w-3 h-3 md:w-4 md:h-4 bg-retro-white retro-border-sm rounded"></div>
+          <span>NORMAL</span>
         </div>
-        <div className="flex items-center gap-1">
-          <div className="w-4 h-4 bg-green-400 rounded"></div>
-          <span>Truth</span>
+        <div className="retro-badge bg-retro-green text-retro-white retro-font-body text-[10px] md:text-xs flex items-center gap-1">
+          <div className="w-3 h-3 md:w-4 md:h-4 bg-retro-green retro-border-sm rounded"></div>
+          <span>TRUTH</span>
         </div>
-        <div className="flex items-center gap-1">
-          <div className="w-4 h-4 bg-red-400 rounded"></div>
-          <span>Dare</span>
+        <div className="retro-badge bg-retro-red text-retro-white retro-font-body text-[10px] md:text-xs flex items-center gap-1">
+          <div className="w-3 h-3 md:w-4 md:h-4 bg-retro-red retro-border-sm rounded"></div>
+          <span>DARE</span>
         </div>
-        <div className="flex items-center gap-1">
-          <div className="w-4 h-4 bg-purple-500 rounded"></div>
-          <span>Ular</span>
+        <div className="retro-badge bg-retro-purple text-retro-white retro-font-body text-[10px] md:text-xs flex items-center gap-1">
+          <div className="w-3 h-3 md:w-4 md:h-4 bg-retro-purple retro-border-sm rounded"></div>
+          <span>SNAKE</span>
         </div>
-        <div className="flex items-center gap-1">
-          <div className="w-4 h-4 bg-amber-400 rounded"></div>
-          <span>Tangga</span>
+        <div className="retro-badge bg-retro-orange text-retro-white retro-font-body text-[10px] md:text-xs flex items-center gap-1">
+          <div className="w-3 h-3 md:w-4 md:h-4 bg-retro-orange retro-border-sm rounded"></div>
+          <span>LADDER</span>
         </div>
       </div>
     </div>
