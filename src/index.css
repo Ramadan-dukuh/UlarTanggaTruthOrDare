@@ -463,6 +463,49 @@
   }
 }
 
+/* Multi-player grid positioning */
+.player-grid-container {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 2px;
+  max-width: 100%;
+}
+
+/* Compact player stacking */
+.player-stack-compact {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 2px;
+  max-width: calc(100% - 4px);
+}
+
+/* Overlap prevention for many players */
+.player-compact {
+  margin-left: -1px;
+  margin-top: -1px;
+}
+
+.player-compact:nth-child(1) {
+  margin-left: 0;
+  margin-top: 0;
+}
+
+.player-compact:nth-child(2) {
+  margin-top: 0;
+}
+
+/* For mobile - tighter packing */
+@media (max-width: 768px) {
+  .player-stack-compact {
+    gap: 1px;
+  }
+  
+  .player-compact {
+    margin-left: -0.5px;
+    margin-top: -0.5px;
+  }
+}
+
 /* Modern Border Styles */
 .modern-border {
   border: 2px solid var(--border-color);

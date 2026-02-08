@@ -227,68 +227,68 @@ export default function Game({ players, gameMode, onBackToMenu, onRestart }) {
   };
 
   return (
-    <div className="min-h-screen modern-gradient-bg modern-grid p-2 md:p-4">
+    <div className="min-h-screen modern-gradient-bg modern-grid p-1.5 sm:p-2 md:p-4">
       <div className="max-w-7xl mx-auto">
-        {/* Header */}
-        <div className="modern-card p-4 md:p-5 mb-4 animate-retro-fade-in">
-          <div className="flex items-center justify-between gap-3">
-            <div className="flex items-center gap-3 md:gap-4">
+        {/* Header - compact on mobile */}
+        <div className="modern-card p-2 sm:p-3 md:p-5 mb-3 md:mb-4 animate-retro-fade-in">
+          <div className="flex items-center justify-between gap-2">
+            <div className="flex items-center gap-2 md:gap-4">
               <button
                 onClick={onBackToMenu}
-                className="modern-btn modern-btn-danger p-2.5 rounded-xl"
+                className="modern-btn modern-btn-danger p-1.5 sm:p-2.5 rounded-lg sm:rounded-xl"
               >
-                <Home className="w-5 h-5" />
+                <Home className="w-4 h-4 sm:w-5 sm:h-5" />
               </button>
-              <div className="flex-1">
-                <h1 className="modern-font-heading text-lg md:text-xl font-bold text-text-primary">
+              <div className="flex-1 min-w-0">
+                <h1 className="modern-font-heading text-sm sm:text-base md:text-xl font-bold text-text-primary">
                   ULAR TANGGA ToD
                 </h1>
-                <p className="modern-font-body text-xs text-text-secondary">
+                <p className="modern-font-body text-[9px] sm:text-xs text-text-secondary">
                   MODE: <span className="font-semibold uppercase text-primary">{gameMode}</span>
                 </p>
               </div>
             </div>
 
-            <div className="flex items-center gap-2">
+            <div className="flex items-center gap-1.5 sm:gap-2">
               <button
                 onClick={() => setSoundEnabled(!soundEnabled)}
-                className="modern-btn p-2.5 bg-bg-card border border-border-color rounded-xl hover:bg-primary hover:text-white transition-all"
+                className="modern-btn p-1.5 sm:p-2.5 bg-bg-card border border-border-color rounded-lg sm:rounded-xl hover:bg-primary hover:text-white transition-all"
               >
-                {soundEnabled ? <Volume2 className="w-5 h-5" /> : <VolumeX className="w-5 h-5" />}
+                {soundEnabled ? <Volume2 className="w-4 h-4 sm:w-5 sm:h-5" /> : <VolumeX className="w-4 h-4 sm:w-5 sm:h-5" />}
               </button>
               <button
                 onClick={handlePlayAgain}
-                className="modern-btn modern-btn-secondary p-2.5 rounded-xl"
+                className="modern-btn modern-btn-secondary p-1.5 sm:p-2.5 rounded-lg sm:rounded-xl"
               >
-                <RotateCcw className="w-5 h-5" />
+                <RotateCcw className="w-4 h-4 sm:w-5 sm:h-5" />
               </button>
             </div>
           </div>
         </div>
 
-        {/* Players Info - Responsive Grid */}
-        <div className="grid grid-cols-2 md:grid-cols-4 gap-3 mb-4">
+        {/* Players Info - more compact on mobile */}
+        <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-2 md:gap-3 mb-3 md:mb-4">
           {gamePlayers.map((player, index) => (
             <div
               key={player.id}
               className={`
-                modern-card p-3 transition-all duration-300
-                ${index === currentPlayerIndex ? 'border-3 border-primary scale-105 shadow-2xl ring-2 ring-primary ring-offset-2' : ''}
+                modern-card p-2 md:p-3 transition-all duration-300
+                ${index === currentPlayerIndex ? 'border-2 sm:border-3 border-primary scale-105 shadow-xl ring-1 sm:ring-2 ring-primary ring-offset-1 sm:ring-offset-2' : ''}
                 animate-retro-slide-up
               `}
               style={{ animationDelay: `${index * 100}ms` }}
             >
-              <div className="flex items-center gap-3">
-                <div className={`w-12 h-12 md:w-14 md:h-14 rounded-xl flex items-center justify-center text-white font-bold text-xl ${player.color} shadow-2xl ring-2 ring-white ring-offset-2 ${index === currentPlayerIndex ? 'animate-player-bounce' : ''}`}>
+              <div className="flex items-center gap-2">
+                <div className={`w-8 h-8 sm:w-10 sm:h-12 md:w-14 md:h-14 rounded-lg sm:rounded-xl flex items-center justify-center text-white font-bold text-base sm:text-lg md:text-xl ${player.color} shadow-xl ring-1 sm:ring-2 ring-white ring-offset-1 sm:ring-offset-2 ${index === currentPlayerIndex ? 'animate-player-bounce' : ''}`}>
                   {player.id}
                 </div>
                 <div className="flex-1 min-w-0">
-                  <p className="modern-font-body font-semibold text-text-primary text-sm truncate">{player.name}</p>
-                  <p className="modern-font-body text-xs text-text-secondary">Pos: {player.position}</p>
+                  <p className="modern-font-body font-semibold text-text-primary text-[10px] sm:text-sm truncate">{player.name}</p>
+                  <p className="modern-font-body text-[8px] sm:text-xs text-text-secondary">Pos: {player.position}</p>
                 </div>
               </div>
               {index === currentPlayerIndex && (
-                <div className="mt-2 modern-btn-primary text-white text-xs font-semibold text-center py-1.5 rounded-lg animate-pulse">
+                <div className="mt-1.5 sm:mt-2 modern-btn-primary text-white text-[9px] sm:text-xs font-semibold text-center py-1 sm:py-1.5 rounded-lg animate-pulse">
                   YOUR TURN! ⚡
                 </div>
               )}
@@ -297,7 +297,7 @@ export default function Game({ players, gameMode, onBackToMenu, onRestart }) {
         </div>
 
         {/* Game Area */}
-        <div className="grid lg:grid-cols-3 gap-4">
+        <div className="grid lg:grid-cols-3 gap-2 md:gap-4">
           {/* Game Board */}
           <div className="lg:col-span-2 order-2 lg:order-1">
             <GameBoard
@@ -310,19 +310,19 @@ export default function Game({ players, gameMode, onBackToMenu, onRestart }) {
           </div>
 
           {/* Controls */}
-          <div className="space-y-4 order-1 lg:order-2">
+          <div className="space-y-2 md:space-y-4 order-1 lg:order-2">
             {/* Dice */}
-            <div className="modern-card p-5 md:p-6 animate-retro-fade-in">
-              <h3 className="modern-font-heading text-sm font-bold text-text-primary mb-4 text-center flex items-center justify-center gap-2">
-                <Sparkles className="w-5 h-5 text-accent-yellow animate-retro-pop" />
+            <div className="modern-card p-3 md:p-5 sm:p-6 animate-retro-fade-in">
+              <h3 className="modern-font-heading text-xs sm:text-sm font-bold text-text-primary mb-2 sm:mb-4 text-center flex items-center justify-center gap-1 sm:gap-2">
+                <Sparkles className="w-4 h-4 sm:w-5 sm:h-5 text-accent-yellow animate-retro-pop" />
                 ROLL DICE
               </h3>
-              <div className="flex flex-col items-center gap-4">
+              <div className="flex flex-col items-center gap-2 sm:gap-4">
                 <div className={`
-                  relative w-20 h-20 md:w-28 md:h-28
+                  relative w-14 h-14 sm:w-20 sm:h-20 md:w-28 md:h-28
                   ${isRolling ? 'animate-dice-roll-3d' : ''}
                 `}>
-                  <div className="relative w-full h-full rounded-xl shadow-2xl overflow-hidden bg-gradient-to-br from-amber-100 to-amber-200 border-3 border-amber-400">
+                  <div className="relative w-full h-full rounded-lg sm:rounded-xl shadow-xl sm:shadow-2xl overflow-hidden bg-gradient-to-br from-amber-100 to-amber-200 border-2 sm:border-3 border-amber-400">
                     {render3DDice(diceValue)}
                   </div>
                 </div>
@@ -330,7 +330,7 @@ export default function Game({ players, gameMode, onBackToMenu, onRestart }) {
                   onClick={rollDice}
                   disabled={isRolling || movingPlayer}
                   className={`
-                    modern-btn w-full py-4 px-6 modern-font-heading text-sm flex items-center justify-center gap-2 rounded-xl
+                    modern-btn w-full py-2.5 sm:py-3 md:py-4 px-3 sm:px-6 modern-font-heading text-[10px] sm:text-sm flex items-center justify-center gap-1.5 sm:gap-2 rounded-lg sm:rounded-xl
                     ${isRolling || movingPlayer
                       ? 'bg-bg-card text-text-muted cursor-not-allowed'
                       : 'modern-btn-primary'
@@ -338,16 +338,16 @@ export default function Game({ players, gameMode, onBackToMenu, onRestart }) {
                   `}
                 >
                   {isRolling ? (
-                    <span className="flex items-center gap-2">
-                      <div className="w-5 h-5 border-2 border-current border-t-transparent rounded-full animate-spin" />
+                    <span className="flex items-center gap-1.5 sm:gap-2">
+                      <div className="w-4 h-4 sm:w-5 border-2 border-current border-t-transparent rounded-full animate-spin" />
                       ROLLING...
                     </span>
                   ) : movingPlayer ? (
                     <span>MOVING...</span>
                   ) : (
-                    <span className="flex items-center gap-2">
+                    <span className="flex items-center gap-1.5 sm:gap-2">
                       ROLL DICE
-                      <ArrowRight className="w-5 h-5" />
+                      <ArrowRight className="w-4 h-4 sm:w-5" />
                     </span>
                   )}
                 </button>
@@ -355,19 +355,19 @@ export default function Game({ players, gameMode, onBackToMenu, onRestart }) {
             </div>
 
             {/* Game Log */}
-            <div className="modern-card p-4 animate-retro-fade-in">
-              <h3 className="modern-font-heading text-sm font-bold text-text-primary mb-3 flex items-center gap-2">
-                <span className="text-accent-green">▶</span>
+            <div className="modern-card p-2 sm:p-3 md:p-4 animate-retro-fade-in">
+              <h3 className="modern-font-heading text-[10px] sm:text-sm font-bold text-text-primary mb-2 sm:mb-3 flex items-center gap-1 sm:gap-2">
+                <span className="text-accent-green text-[10px] sm:text-sm">▶</span>
                 GAME LOG
               </h3>
-              <div className="space-y-2 max-h-40 overflow-y-auto">
+              <div className="space-y-1.5 sm:space-y-2 max-h-28 sm:max-h-36 md:max-h-40 overflow-y-auto">
                 {gameLog.length === 0 ? (
-                  <p className="modern-font-body text-text-muted text-xs text-center py-4">No activity yet</p>
+                  <p className="modern-font-body text-text-muted text-[9px] sm:text-xs text-center py-2 sm:py-4">No activity yet</p>
                 ) : (
                   gameLog.map((log, index) => (
-                    <div 
-                      key={index} 
-                      className="modern-font-body text-xs text-text-primary bg-bg-dark/50 border border-border-color p-3 rounded-lg animate-retro-slide-up"
+                    <div
+                      key={index}
+                      className="modern-font-body text-[9px] sm:text-xs text-text-primary bg-bg-dark/50 border border-border-color p-1.5 sm:p-3 rounded-lg animate-retro-slide-up"
                       style={{ animationDelay: `${index * 50}ms` }}
                     >
                       {log}

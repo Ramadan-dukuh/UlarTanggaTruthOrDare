@@ -50,8 +50,8 @@ export default function GameBoard({ players, currentPlayerIndex, onSquareClick, 
   };
 
   return (
-    <div className="modern-card p-3 md:p-4 rounded-2xl animate-retro-fade-in relative">
-      <div className="grid grid-cols-10 gap-1 md:gap-1.5 w-full aspect-square max-w-2xl mx-auto relative z-20">
+    <div className="modern-card p-2 md:p-4 rounded-2xl animate-retro-fade-in relative">
+      <div className="grid grid-cols-10 gap-0.5 md:gap-1.5 w-full aspect-square max-w-2xl mx-auto relative z-20">
         {grid.map((row, rowIndex) => (
           row.map((squareNumber, colIndex) => {
             const type = squareType(squareNumber);
@@ -89,87 +89,115 @@ export default function GameBoard({ players, currentPlayerIndex, onSquareClick, 
                 }
                 className={`
                   ${color}
-                  relative rounded-lg
+                  relative rounded sm:rounded-lg
                   flex items-center justify-center
                   cursor-pointer transition-all duration-200
-                  border-2
-                  ${isSnakeStart ? 'border-violet-500 border-3' : ''}
-                  ${isLadderStart ? 'border-amber-500 border-3' : ''}
+                  border border-gray-300
+                  ${isSnakeStart ? 'border-violet-500 border-2' : ''}
+                  ${isLadderStart ? 'border-amber-500 border-2' : ''}
                   ${isSnakeEnd ? 'border-violet-400 border-2' : ''}
                   ${isLadderEnd ? 'border-amber-400 border-2' : ''}
-                  ${!isSnakeStart && !isLadderStart && !isSnakeEnd && !isLadderEnd ? 'border-gray-300' : ''}
                   hover:scale-110 hover:z-30 hover:shadow-xl
-                  modern-font-body text-[10px] md:text-xs
-                  ${isCurrentPlayerPosition ? 'ring-4 ring-yellow-400 ring-offset-2 z-10 shadow-2xl scale-105' : ''}
+                  modern-font-body text-[6px] sm:text-[8px] md:text-xs
+                  ${isCurrentPlayerPosition ? 'ring-2 sm:ring-4 ring-yellow-400 ring-offset-1 sm:ring-offset-2 z-10 shadow-xl scale-105' : ''}
                   ${(type === 'truth' || type === 'dare') ? 'shadow-md' : ''}
                   ${playersAtSquare.length > 0 ? 'shadow-lg' : ''}
                   animate-retro-slide-up
                 `}
                 style={{ animationDelay: `${(rowIndex * 10 + colIndex) * 10}ms` }}
               >
-                <span className="absolute top-1 left-1 text-gray-800 font-bold text-[8px] md:text-[10px] drop-shadow-sm z-10">
+                <span className="absolute top-0.5 left-0.5 text-gray-800 font-bold text-[5px] sm:text-[7px] md:text-[9px] drop-shadow-sm z-10">
                   {squareNumber}
                 </span>
 
-                {/* Destination indicator for snakes and ladders */}
+                {/* Destination indicator for snakes and ladders - smaller on mobile */}
                 {isSnakeStart && (
-                  <div className="absolute top-1 right-1 z-10 animate-pulse">
-                    <span className="text-[7px] md:text-[9px] font-bold text-white bg-violet-600 px-1.5 py-0.5 rounded-md border-2 border-violet-400 shadow-lg">
+                  <div className="absolute top-0.5 right-0.5 z-10 animate-pulse">
+                    <span className="text-[5px] sm:text-[7px] md:text-[9px] font-bold text-white bg-violet-600 px-0.5 sm:px-1.5 py-0.5 rounded border border-violet-400 shadow-lg">
                       ↓{SNAKES[squareNumber]}
                     </span>
                   </div>
                 )}
 
                 {isLadderStart && (
-                  <div className="absolute top-1 right-1 z-10 animate-pulse">
-                    <span className="text-[7px] md:text-[9px] font-bold text-white bg-amber-600 px-1.5 py-0.5 rounded-md border-2 border-amber-400 shadow-lg">
+                  <div className="absolute top-0.5 right-0.5 z-10 animate-pulse">
+                    <span className="text-[5px] sm:text-[7px] md:text-[9px] font-bold text-white bg-amber-600 px-0.5 sm:px-1.5 py-0.5 rounded border border-amber-400 shadow-lg">
                       ↑{LADDERS[squareNumber]}
                     </span>
                   </div>
                 )}
 
                 {type === 'snake' && (
-                  <div className="absolute inset-0 flex items-center justify-center opacity-70 z-0">
-                    <ArrowDownToLine className="w-4 h-4 md:w-6 md:h-6 text-white animate-retro-float" />
+                  <div className="absolute inset-0 flex items-center justify-center opacity-70 z-0 hidden sm:flex">
+                    <ArrowDownToLine className="w-3 h-3 md:w-6 md:h-6 text-white animate-retro-float" />
                   </div>
                 )}
 
                 {type === 'ladder' && (
-                  <div className="absolute inset-0 flex items-center justify-center opacity-70 z-0">
-                    <TrendingUp className="w-4 h-4 md:w-6 md:h-6 text-white animate-retro-float" />
+                  <div className="absolute inset-0 flex items-center justify-center opacity-70 z-0 hidden sm:flex">
+                    <TrendingUp className="w-3 h-3 md:w-6 md:h-6 text-white animate-retro-float" />
                   </div>
                 )}
 
                 {type === 'truth' && (
-                  <div className="absolute bottom-1 right-1 animate-retro-pop">
-                    <span className="modern-font-heading text-[6px] md:text-[8px] text-white font-bold px-1.5 py-0.5 bg-gray-800 rounded-md shadow-md">
+                  <div className="absolute bottom-0.5 right-0.5 animate-retro-pop hidden sm:block">
+                    <span className="modern-font-heading text-[5px] sm:text-[6px] md:text-[8px] text-white font-bold px-1 sm:px-1.5 py-0.5 bg-gray-800 rounded-sm sm:rounded-md shadow-md">
                       T
                     </span>
                   </div>
                 )}
                 {type === 'dare' && (
-                  <div className="absolute bottom-1 right-1 animate-retro-pop">
-                    <span className="modern-font-heading text-[6px] md:text-[8px] text-white font-bold px-1.5 py-0.5 bg-gray-800 rounded-md shadow-md">
+                  <div className="absolute bottom-0.5 right-0.5 animate-retro-pop hidden sm:block">
+                    <span className="modern-font-heading text-[5px] sm:text-[6px] md:text-[8px] text-white font-bold px-1 sm:px-1.5 py-0.5 bg-gray-800 rounded-sm sm:rounded-md shadow-md">
                       D
                     </span>
                   </div>
                 )}
 
                 {playersAtSquare.length > 0 && (
-                  <div className="absolute top-0.5 right-0.5 flex flex-wrap gap-1 animate-retro-bounce-in z-20">
-                    {playersAtSquare.map((player) => {
+                  <div 
+                    className={`
+                      absolute top-0.5 right-0.5 
+                      ${playersAtSquare.length <= 4 
+                        ? 'grid grid-cols-2 gap-0.5' 
+                        : 'flex flex-wrap gap-0.5'
+                      }
+                      animate-retro-bounce-in z-20
+                      max-w-[calc(100%-4px)]
+                    `}
+                  >
+                    {playersAtSquare.map((player, idx) => {
                       const isCurrentMovingPlayer = movingPlayer === player.id;
+                      const count = playersAtSquare.length;
+                      
+                      // Dynamic sizing based on number of players
+                      const getSize = () => {
+                        if (count <= 2) return 'w-5 h-5 sm:w-6 sm:h-6 md:w-7 md:h-7';
+                        if (count <= 4) return 'w-4 h-4 sm:w-5 sm:h-5 md:w-6 md:h-6';
+                        return 'w-3.5 h-3.5 sm:w-4 sm:h-4 md:w-4.5 md:h-4.5';
+                      };
+
+                      const getBorder = () => {
+                        if (count <= 2) return 'border-2';
+                        return 'border';
+                      };
+
                       return (
                         <div
                           key={player.id}
                           className={`
-                            w-6 h-6 md:w-7 md:h-7 rounded-full ${player.color}
-                            border-4 border-white shadow-2xl
+                            ${getSize()}
+                            rounded-full ${player.color}
+                            ${getBorder()} border-white
+                            shadow-lg
                             flex items-center justify-center
-                            text-[9px] md:text-[11px] text-white font-black
-                            ring-2 ring-offset-2 ring-yellow-400
-                            ${isCurrentMovingPlayer ? 'animate-player-hop' : 'animate-player-bounce'}
-                            cursor-pointer hover:scale-110 transition-transform
+                            text-[6px] sm:text-[8px] md:text-[10px] text-white font-bold
+                            ${isCurrentMovingPlayer 
+                              ? 'ring-1.5 ring-yellow-400 ring-offset-1 animate-player-hop z-30' 
+                              : 'ring-1 ring-yellow-400/50 ring-offset-1 animate-player-bounce'
+                            }
+                            hover:scale-110 hover:z-30
+                            cursor-pointer transition-all
                           `}
                           title={player.name}
                         >
@@ -181,9 +209,9 @@ export default function GameBoard({ players, currentPlayerIndex, onSquareClick, 
                 )}
 
                 {(type === 'truth' || type === 'dare') && (
-                  <div className="absolute bottom-1 left-1">
+                  <div className="absolute bottom-0.5 left-0.5">
                     <span className={`
-                      modern-font-heading text-[5px] md:text-[6px] px-1 py-0.5 font-bold rounded-md
+                      modern-font-heading text-[4px] sm:text-[5px] md:text-[6px] px-0.5 sm:px-1 py-0.5 font-bold rounded-sm
                       ${diff === 'easy' ? 'bg-blue-600 text-white' : ''}
                       ${diff === 'medium' ? 'bg-yellow-500 text-black' : ''}
                       ${diff === 'hard' ? 'bg-red-600 text-white' : ''}
@@ -198,35 +226,33 @@ export default function GameBoard({ players, currentPlayerIndex, onSquareClick, 
         ))}
       </div>
 
-      {/* Legend */}
-      <div className="mt-4 md:mt-5 space-y-3">
-        {/* Game Elements */}
-        <div className="flex flex-wrap justify-center gap-2 md:gap-3">
-          <div className="px-3 py-2 bg-bg-card border border-border-color rounded-xl modern-font-body text-xs flex items-center gap-2">
-            <div className="w-4 h-4 bg-emerald-50 rounded-md border-2 border-gray-300"></div>
-            <span className="text-text-primary font-medium">Normal</span>
+      {/* Legend - simplified on mobile */}
+      <div className="mt-3 md:mt-5 space-y-2 md:space-y-3">
+        {/* Game Elements - smaller on mobile */}
+        <div className="flex flex-wrap justify-center gap-1 sm:gap-2 md:gap-3">
+          <div className="px-2 py-1 sm:px-3 sm:py-2 bg-bg-card border border-border-color rounded-lg sm:rounded-xl modern-font-body text-[9px] sm:text-xs flex items-center gap-1 sm:gap-2">
+            <div className="w-3 h-3 sm:w-4 sm:h-4 bg-emerald-50 rounded-md border border-gray-300"></div>
+            <span className="text-text-primary font-medium hidden xs:inline">Normal</span>
           </div>
-          <div className="px-3 py-2 bg-bg-card border border-border-color rounded-xl modern-font-body text-xs flex items-center gap-2">
-            <div className="w-4 h-4 bg-teal-400 rounded-md border-2 border-gray-300"></div>
-            <span className="text-text-primary font-medium">Truth</span>
+          <div className="px-2 py-1 sm:px-3 sm:py-2 bg-bg-card border border-border-color rounded-lg sm:rounded-xl modern-font-body text-[9px] sm:text-xs flex items-center gap-1 sm:gap-2">
+            <div className="w-3 h-3 sm:w-4 sm:h-4 bg-teal-400 rounded-md border border-gray-300"></div>
+            <span className="text-text-primary font-medium hidden xs:inline">Truth</span>
           </div>
-          <div className="px-3 py-2 bg-bg-card border border-border-color rounded-xl modern-font-body text-xs flex items-center gap-2">
-            <div className="w-4 h-4 bg-orange-400 rounded-md border-2 border-gray-300"></div>
-            <span className="text-text-primary font-medium">Dare</span>
+          <div className="px-2 py-1 sm:px-3 sm:py-2 bg-bg-card border border-border-color rounded-lg sm:rounded-xl modern-font-body text-[9px] sm:text-xs flex items-center gap-1 sm:gap-2">
+            <div className="w-3 h-3 sm:w-4 sm:h-4 bg-orange-400 rounded-md border border-gray-300"></div>
+            <span className="text-text-primary font-medium hidden xs:inline">Dare</span>
           </div>
         </div>
 
-        {/* Snake and Ladder Info - with badges */}
-        <div className="flex flex-wrap justify-center gap-2 md:gap-3">
-          <div className="px-3 py-2 bg-violet-100 border-2 border-violet-500 rounded-xl modern-font-body text-xs flex flex-col items-center gap-1">
-            <span className="text-violet-800 font-bold text-[10px] bg-violet-600 text-white px-2 py-0.5 rounded-md">↓6</span>
-            <span className="text-violet-800 font-medium">Snake: Slide Down</span>
-            <span className="text-violet-600 text-[9px]">Badge shows destination</span>
+        {/* Snake and Ladder Info - stacked on mobile */}
+        <div className="flex flex-wrap justify-center gap-1 sm:gap-2 md:gap-3">
+          <div className="px-2 py-1 sm:px-3 sm:py-2 bg-violet-100 border border-violet-500 rounded-lg sm:rounded-xl modern-font-body text-[9px] sm:text-xs flex flex-col items-center gap-0.5 sm:gap-1">
+            <span className="text-violet-800 font-bold text-[8px] sm:text-[10px] bg-violet-600 text-white px-1 sm:px-2 py-0.5 rounded">↓6</span>
+            <span className="text-violet-800 font-medium text-[8px] sm:text-xs">Snake Down</span>
           </div>
-          <div className="px-3 py-2 bg-amber-100 border-2 border-amber-500 rounded-xl modern-font-body text-xs flex flex-col items-center gap-1">
-            <span className="text-amber-800 font-bold text-[10px] bg-amber-600 text-white px-2 py-0.5 rounded-md">↑38</span>
-            <span className="text-amber-800 font-medium">Ladder: Climb Up</span>
-            <span className="text-amber-600 text-[9px]">Badge shows destination</span>
+          <div className="px-2 py-1 sm:px-3 sm:py-2 bg-amber-100 border border-amber-500 rounded-lg sm:rounded-xl modern-font-body text-[9px] sm:text-xs flex flex-col items-center gap-0.5 sm:gap-1">
+            <span className="text-amber-800 font-bold text-[8px] sm:text-[10px] bg-amber-600 text-white px-1 sm:px-2 py-0.5 rounded">↑38</span>
+            <span className="text-amber-800 font-medium text-[8px] sm:text-xs">Ladder Up</span>
           </div>
         </div>
       </div>

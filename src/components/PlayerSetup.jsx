@@ -49,10 +49,10 @@ export default function PlayerSetup({ onStartGame }) {
   };
 
   return (
-    <div className="min-h-screen modern-gradient-bg modern-grid flex items-center justify-center p-4">
-      <div className="modern-card p-6 md:p-8 max-w-lg w-full animate-retro-fade-in">
+    <div className="min-h-screen modern-gradient-bg modern-grid flex items-center justify-center p-3 sm:p-4">
+      <div className="modern-card p-4 sm:p-6 md:p-8 max-w-lg w-full animate-retro-fade-in">
         {/* Header */}
-        <div className="text-center mb-6">
+        <div className="text-center mb-4 sm:mb-6">
           <div className="inline-block mb-4 animate-retro-float">
             <div className="w-20 h-20 mx-auto bg-gradient-to-br from-primary to-secondary rounded-2xl flex items-center justify-center shadow-2xl">
               <Gamepad2 className="w-12 h-12 text-white" />
