@@ -70,26 +70,26 @@ export const getDifficulty = (squareNumber) => {
 // Warna untuk setiap tipe kotak
 export const getSquareColor = (squareType, difficulty) => {
   const colors = {
-    normal: 'bg-gray-100 hover:bg-gray-200',
-    truth: 'bg-green-400 hover:bg-green-500',
-    dare: 'bg-red-400 hover:bg-red-500',
-    snake: 'bg-purple-500 hover:bg-purple-600',
-    ladder: 'bg-amber-400 hover:bg-amber-500',
+    normal: 'bg-emerald-50 hover:bg-emerald-100', // Warna hijau muda lembut untuk normal
+    truth: 'bg-emerald-400 hover:bg-emerald-500', // Hijau yang lebih vibrant untuk Truth
+    dare: 'bg-rose-400 hover:bg-rose-500', // Merah muda yang vibrant untuk Dare
+    snake: 'bg-violet-500 hover:bg-violet-600', // Ungu gelap untuk Snake
+    ladder: 'bg-amber-400 hover:bg-amber-500', // Kuning/amber untuk Ladder
   };
-  
+
   // Variasi warna berdasarkan kesulitan
   if (squareType === SQUARE_TYPES.TRUTH) {
-    if (difficulty === 'easy') return 'bg-green-300 hover:bg-green-400';
-    if (difficulty === 'medium') return 'bg-green-500 hover:bg-green-600';
-    return 'bg-green-700 hover:bg-green-800';
+    if (difficulty === 'easy') return 'bg-teal-300 hover:bg-teal-400';
+    if (difficulty === 'medium') return 'bg-teal-500 hover:bg-teal-600';
+    return 'bg-teal-700 hover:bg-teal-800';
   }
-  
+
   if (squareType === SQUARE_TYPES.DARE) {
-    if (difficulty === 'easy') return 'bg-red-300 hover:bg-red-400';
-    if (difficulty === 'medium') return 'bg-red-500 hover:bg-red-600';
-    return 'bg-red-700 hover:bg-red-800';
+    if (difficulty === 'easy') return 'bg-orange-300 hover:bg-orange-400';
+    if (difficulty === 'medium') return 'bg-orange-500 hover:bg-orange-600';
+    return 'bg-orange-700 hover:bg-orange-800';
   }
-  
+
   return colors[squareType] || colors.normal;
 };
 

@@ -62,68 +62,85 @@ export default function Game({ players, gameMode, onBackToMenu, onRestart }) {
 
   const movePlayer = (steps) => {
     setMovingPlayer(currentPlayer.id);
-    const newPosition = Math.min(currentPlayer.position + steps, 100);
+    const currentPosition = currentPlayer.position;
+    const targetPosition = Math.min(currentPosition + steps, 100);
 
-    setTimeout(() => {
+    // Animate movement step by step
+    let currentStep = 0;
+    const moveInterval = setInterval(() => {
+      currentStep++;
+      const nextPosition = Math.min(currentPosition + currentStep, targetPosition);
+
       setGamePlayers((prev) =>
         prev.map((p) =>
-          p.id === currentPlayer.id ? { ...p, position: newPosition } : p
+          p.id === currentPlayer.id ? { ...p, position: nextPosition } : p
         )
       );
-      addLog(`${currentPlayer.name} melempar dadu ${steps} dan pindah ke kotak ${newPosition}`);
 
-      if (newPosition === 100) {
-        setWinner(currentPlayer);
-        setMovingPlayer(null);
-        return;
-      }
+      // Add log for each step (optional, can be removed if too verbose)
+      if (currentStep === steps || nextPosition === targetPosition) {
+        clearInterval(moveInterval);
+        addLog(`${currentPlayer.name} melempar dadu ${steps} dan pindah ke kotak ${targetPosition}`);
 
-      if (SNAKES[newPosition]) {
-        setTimeout(() => {
-          const snakeEnd = SNAKES[newPosition];
-          setGamePlayers((prev) =>
-            prev.map((p) =>
-              p.id === currentPlayer.id ? { ...p, position: snakeEnd } : p
-            )
-          );
-          addLog(`${currentPlayer.name} kena ular! Turun ke kotak ${snakeEnd}`);
-
-          setTimeout(() => {
-            showTruthDareModal('hard');
-            setMovingPlayer(null);
-          }, 800);
-        }, 800);
-      } else if (LADDERS[newPosition]) {
-        setTimeout(() => {
-          const ladderEnd = LADDERS[newPosition];
-          setGamePlayers((prev) =>
-            prev.map((p) =>
-              p.id === currentPlayer.id ? { ...p, position: ladderEnd } : p
-            )
-          );
-          addLog(`${currentPlayer.name} naik tangga! Ke kotak ${ladderEnd}`);
-
-          setTimeout(() => {
-            nextPlayer();
-            setMovingPlayer(null);
-          }, 800);
-        }, 800);
-      } else {
-        const squareType = getSquareType(newPosition);
-        if (squareType === 'truth' || squareType === 'dare') {
-          const difficulty = getDifficulty(newPosition);
-          setTimeout(() => {
-            showTruthDareModal(difficulty, squareType);
-            setMovingPlayer(null);
-          }, 800);
-        } else {
-          setTimeout(() => {
-            nextPlayer();
-            setMovingPlayer(null);
-          }, 800);
+        // Check for win
+        if (targetPosition === 100) {
+          setWinner(currentPlayer);
+          setMovingPlayer(null);
+          return;
         }
+
+        // Check for snake or ladder
+        setTimeout(() => {
+          if (SNAKES[targetPosition]) {
+            const snakeEnd = SNAKES[targetPosition];
+            addLog(`${currentPlayer.name} kena ular! 🐍 Turun ke kotak ${snakeEnd}`);
+
+            setTimeout(() => {
+              setGamePlayers((prev) =>
+                prev.map((p) =>
+                  p.id === currentPlayer.id ? { ...p, position: snakeEnd } : p
+                )
+              );
+
+              setTimeout(() => {
+                showTruthDareModal('hard');
+                setMovingPlayer(null);
+              }, 1000);
+            }, 1000);
+          } else if (LADDERS[targetPosition]) {
+            const ladderEnd = LADDERS[targetPosition];
+            addLog(`${currentPlayer.name} naik tangga! 🪜 Ke kotak ${ladderEnd}`);
+
+            setTimeout(() => {
+              setGamePlayers((prev) =>
+                prev.map((p) =>
+                  p.id === currentPlayer.id ? { ...p, position: ladderEnd } : p
+                )
+              );
+
+              setTimeout(() => {
+                nextPlayer();
+                setMovingPlayer(null);
+              }, 1000);
+            }, 1000);
+          } else {
+            const squareType = getSquareType(targetPosition);
+            if (squareType === 'truth' || squareType === 'dare') {
+              const difficulty = getDifficulty(targetPosition);
+              setTimeout(() => {
+                showTruthDareModal(difficulty, squareType);
+                setMovingPlayer(null);
+              }, 1000);
+            } else {
+              setTimeout(() => {
+                nextPlayer();
+                setMovingPlayer(null);
+              }, 1000);
+            }
+          }
+        }, 800);
       }
-    }, 500);
+    }, 400); // Move every 400ms per step (slower for better visibility)
   };
 
   const showTruthDareModal = (difficulty, forceType = null) => {
@@ -160,24 +177,39 @@ export default function Game({ players, gameMode, onBackToMenu, onRestart }) {
     setGameLog((prev) => [message, ...prev].slice(0, 8));
   };
 
-  // Render dice dots based on value
-  const renderDiceDots = (value) => {
-    const dots = [];
-    const dotSize = "w-2 h-2 md:w-3 md:h-3";
-    
-    for (let i = 0; i < value; i++) {
-      dots.push(
-        <div
-          key={i}
-          className={`${dotSize} bg-retro-cream rounded-full animate-retro-pop`}
-          style={{ animationDelay: `${i * 50}ms` }}
-        />
-      );
-    }
-    
+  // Render 3D dice cube
+  const render3DDice = (value) => {
+    const getDotsPosition = (val) => {
+      const positions = {
+        1: ['center'],
+        2: ['top-left', 'bottom-right'],
+        3: ['top-left', 'center', 'bottom-right'],
+        4: ['top-left', 'top-right', 'bottom-left', 'bottom-right'],
+        5: ['top-left', 'top-right', 'center', 'bottom-left', 'bottom-right'],
+        6: ['top-left', 'top-right', 'middle-left', 'middle-right', 'bottom-left', 'bottom-right']
+      };
+      return positions[val] || [];
+    };
+
+    const dots = getDotsPosition(value);
+    const dotPosition = {
+      'top-left': 'top-2 left-2',
+      'top-right': 'top-2 right-2',
+      'center': 'top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2',
+      'middle-left': 'top-1/2 left-2 -translate-y-1/2',
+      'middle-right': 'top-1/2 right-2 -translate-y-1/2',
+      'bottom-left': 'bottom-2 left-2',
+      'bottom-right': 'bottom-2 right-2',
+    };
+
     return (
-      <div className="grid grid-cols-3 gap-1 p-2 md:p-3 place-items-center">
-        {dots}
+      <div className="relative w-full h-full bg-gradient-to-br from-amber-100 to-amber-200 rounded-lg shadow-inner border-2 border-amber-400">
+        {dots.map((pos, idx) => (
+          <div
+            key={idx}
+            className={`absolute w-3 h-3 md:w-4 md:h-4 bg-gradient-to-br from-gray-800 to-gray-900 rounded-full shadow-md ${dotPosition[pos]}`}
+          />
+        ))}
       </div>
     );
   };
@@ -195,24 +227,24 @@ export default function Game({ players, gameMode, onBackToMenu, onRestart }) {
   };
 
   return (
-    <div className="min-h-screen bg-retro-dark-blue retro-grid p-2 md:p-4">
+    <div className="min-h-screen modern-gradient-bg modern-grid p-2 md:p-4">
       <div className="max-w-7xl mx-auto">
         {/* Header */}
-        <div className="retro-card bg-retro-cream p-3 md:p-4 mb-4 animate-retro-fade-in">
-          <div className="flex items-center justify-between gap-2">
-            <div className="flex items-center gap-2 md:gap-4">
+        <div className="modern-card p-4 md:p-5 mb-4 animate-retro-fade-in">
+          <div className="flex items-center justify-between gap-3">
+            <div className="flex items-center gap-3 md:gap-4">
               <button
                 onClick={onBackToMenu}
-                className="retro-btn p-2 bg-retro-red text-retro-white rounded hover:bg-retro-red"
+                className="modern-btn modern-btn-danger p-2.5 rounded-xl"
               >
-                <Home className="w-4 h-4 md:w-5 md:h-5" />
+                <Home className="w-5 h-5" />
               </button>
-              <div>
-                <h1 className="retro-font text-sm md:text-lg font-bold text-retro-black retro-text-shadow">
+              <div className="flex-1">
+                <h1 className="modern-font-heading text-lg md:text-xl font-bold text-text-primary">
                   ULAR TANGGA ToD
                 </h1>
-                <p className="retro-font-body text-[10px] md:text-xs text-retro-dark-gray">
-                  MODE: <span className="font-bold uppercase">{gameMode}</span>
+                <p className="modern-font-body text-xs text-text-secondary">
+                  MODE: <span className="font-semibold uppercase text-primary">{gameMode}</span>
                 </p>
               </div>
             </div>
@@ -220,44 +252,44 @@ export default function Game({ players, gameMode, onBackToMenu, onRestart }) {
             <div className="flex items-center gap-2">
               <button
                 onClick={() => setSoundEnabled(!soundEnabled)}
-                className="retro-btn p-2 bg-retro-teal text-retro-white rounded hover:bg-retro-teal"
+                className="modern-btn p-2.5 bg-bg-card border border-border-color rounded-xl hover:bg-primary hover:text-white transition-all"
               >
-                {soundEnabled ? <Volume2 className="w-4 h-4 md:w-5 md:h-5" /> : <VolumeX className="w-4 h-4 md:w-5 md:h-5" />}
+                {soundEnabled ? <Volume2 className="w-5 h-5" /> : <VolumeX className="w-5 h-5" />}
               </button>
               <button
                 onClick={handlePlayAgain}
-                className="retro-btn p-2 bg-retro-yellow text-retro-black rounded hover:bg-retro-yellow"
+                className="modern-btn modern-btn-secondary p-2.5 rounded-xl"
               >
-                <RotateCcw className="w-4 h-4 md:w-5 md:h-5" />
+                <RotateCcw className="w-5 h-5" />
               </button>
             </div>
           </div>
         </div>
 
         {/* Players Info - Responsive Grid */}
-        <div className="grid grid-cols-2 md:grid-cols-4 gap-2 mb-4">
+        <div className="grid grid-cols-2 md:grid-cols-4 gap-3 mb-4">
           {gamePlayers.map((player, index) => (
             <div
               key={player.id}
               className={`
-                retro-card bg-retro-cream p-2 md:p-3 transition-all duration-300
-                ${index === currentPlayerIndex ? 'border-retro-orange scale-105 animate-retro-shake' : ''}
+                modern-card p-3 transition-all duration-300
+                ${index === currentPlayerIndex ? 'border-3 border-primary scale-105 shadow-2xl ring-2 ring-primary ring-offset-2' : ''}
                 animate-retro-slide-up
               `}
               style={{ animationDelay: `${index * 100}ms` }}
             >
-              <div className="flex items-center gap-2">
-                <div className={`retro-avatar w-8 h-8 md:w-10 md:h-10 bg-retro-black border-2 border-retro-black flex items-center justify-center text-white font-bold ${player.color}`}>
+              <div className="flex items-center gap-3">
+                <div className={`w-12 h-12 md:w-14 md:h-14 rounded-xl flex items-center justify-center text-white font-bold text-xl ${player.color} shadow-2xl ring-2 ring-white ring-offset-2 ${index === currentPlayerIndex ? 'animate-player-bounce' : ''}`}>
                   {player.id}
                 </div>
                 <div className="flex-1 min-w-0">
-                  <p className="retro-font-body font-bold text-retro-black text-[10px] md:text-xs truncate">{player.name}</p>
-                  <p className="retro-font-body text-[8px] md:text-[10px] text-retro-dark-gray">POS: {player.position}</p>
+                  <p className="modern-font-body font-semibold text-text-primary text-sm truncate">{player.name}</p>
+                  <p className="modern-font-body text-xs text-text-secondary">Pos: {player.position}</p>
                 </div>
               </div>
               {index === currentPlayerIndex && (
-                <div className="mt-2 retro-badge bg-retro-orange text-retro-white text-[8px] md:text-[10px] font-bold text-center animate-retro-blink">
-                  TURN!
+                <div className="mt-2 modern-btn-primary text-white text-xs font-semibold text-center py-1.5 rounded-lg animate-pulse">
+                  YOUR TURN! ⚡
                 </div>
               )}
             </div>
@@ -273,46 +305,49 @@ export default function Game({ players, gameMode, onBackToMenu, onRestart }) {
               currentPlayerIndex={currentPlayerIndex}
               onSquareClick={handleSquareClick}
               onTruthDareSquare={handleTruthDareSquare}
+              movingPlayer={movingPlayer}
             />
           </div>
 
           {/* Controls */}
           <div className="space-y-4 order-1 lg:order-2">
             {/* Dice */}
-            <div className="retro-card bg-retro-cream p-4 md:p-6 animate-retro-fade-in">
-              <h3 className="retro-font text-xs font-bold text-retro-black mb-3 md:mb-4 text-center flex items-center justify-center gap-2">
-                <Sparkles className="w-4 h-4 md:w-5 md:h-5 text-retro-orange animate-retro-pop" />
+            <div className="modern-card p-5 md:p-6 animate-retro-fade-in">
+              <h3 className="modern-font-heading text-sm font-bold text-text-primary mb-4 text-center flex items-center justify-center gap-2">
+                <Sparkles className="w-5 h-5 text-accent-yellow animate-retro-pop" />
                 ROLL DICE
               </h3>
-              <div className="flex flex-col items-center gap-3 md:gap-4">
+              <div className="flex flex-col items-center gap-4">
                 <div className={`
-                  retro-border w-16 h-16 md:w-24 md:h-24 bg-retro-black flex items-center justify-center transition-all duration-300
-                  ${isRolling ? 'animate-retro-coin-spin' : ''}
+                  relative w-20 h-20 md:w-28 md:h-28
+                  ${isRolling ? 'animate-dice-roll-3d' : ''}
                 `}>
-                  {!isRolling && renderDiceDots(diceValue)}
+                  <div className="relative w-full h-full rounded-xl shadow-2xl overflow-hidden bg-gradient-to-br from-amber-100 to-amber-200 border-3 border-amber-400">
+                    {render3DDice(diceValue)}
+                  </div>
                 </div>
                 <button
                   onClick={rollDice}
                   disabled={isRolling || movingPlayer}
                   className={`
-                    retro-btn w-full py-3 px-6 retro-font text-xs md:text-sm flex items-center justify-center gap-2 rounded
+                    modern-btn w-full py-4 px-6 modern-font-heading text-sm flex items-center justify-center gap-2 rounded-xl
                     ${isRolling || movingPlayer
-                      ? 'bg-retro-gray text-retro-white cursor-not-allowed'
-                      : 'bg-retro-orange text-retro-white hover:bg-retro-red'
+                      ? 'bg-bg-card text-text-muted cursor-not-allowed'
+                      : 'modern-btn-primary'
                     }
                   `}
                 >
                   {isRolling ? (
                     <span className="flex items-center gap-2">
-                      <div className="w-5 h-5 border-2 border-retro-white border-t-retro-black rounded-full animate-retro-coin-spin" />
+                      <div className="w-5 h-5 border-2 border-current border-t-transparent rounded-full animate-spin" />
                       ROLLING...
                     </span>
                   ) : movingPlayer ? (
                     <span>MOVING...</span>
                   ) : (
                     <span className="flex items-center gap-2">
-                      ROLL!
-                      <ArrowRight className="w-4 h-4 md:w-5 md:h-5" />
+                      ROLL DICE
+                      <ArrowRight className="w-5 h-5" />
                     </span>
                   )}
                 </button>
@@ -320,19 +355,19 @@ export default function Game({ players, gameMode, onBackToMenu, onRestart }) {
             </div>
 
             {/* Game Log */}
-            <div className="retro-card bg-retro-cream p-3 md:p-4 animate-retro-fade-in">
-              <h3 className="retro-font text-xs font-bold text-retro-black mb-2 md:mb-3 flex items-center gap-2">
-                <span className="animate-retro-blink">▶</span>
+            <div className="modern-card p-4 animate-retro-fade-in">
+              <h3 className="modern-font-heading text-sm font-bold text-text-primary mb-3 flex items-center gap-2">
+                <span className="text-accent-green">▶</span>
                 GAME LOG
               </h3>
-              <div className="space-y-1.5 md:space-y-2 max-h-32 md:max-h-48 overflow-y-auto">
+              <div className="space-y-2 max-h-40 overflow-y-auto">
                 {gameLog.length === 0 ? (
-                  <p className="retro-font-body text-retro-dark-gray text-[10px] md:text-xs text-center py-4">NO ACTIVITY</p>
+                  <p className="modern-font-body text-text-muted text-xs text-center py-4">No activity yet</p>
                 ) : (
                   gameLog.map((log, index) => (
                     <div 
                       key={index} 
-                      className="retro-font-body text-[10px] md:text-xs text-retro-black bg-retro-white border-2 border-retro-black p-2 animate-retro-slide-up"
+                      className="modern-font-body text-xs text-text-primary bg-bg-dark/50 border border-border-color p-3 rounded-lg animate-retro-slide-up"
                       style={{ animationDelay: `${index * 50}ms` }}
                     >
                       {log}

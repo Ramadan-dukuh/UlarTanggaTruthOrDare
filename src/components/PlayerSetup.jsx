@@ -49,31 +49,33 @@ export default function PlayerSetup({ onStartGame }) {
   };
 
   return (
-    <div className="min-h-screen bg-retro-dark-blue retro-grid flex items-center justify-center p-4">
-      <div className="retro-card rounded-lg p-6 md:p-8 max-w-md w-full animate-retro-fade-in">
+    <div className="min-h-screen modern-gradient-bg modern-grid flex items-center justify-center p-4">
+      <div className="modern-card p-6 md:p-8 max-w-lg w-full animate-retro-fade-in">
         {/* Header */}
         <div className="text-center mb-6">
           <div className="inline-block mb-4 animate-retro-float">
-            <Gamepad2 className="w-16 h-16 text-retro-purple mx-auto" />
+            <div className="w-20 h-20 mx-auto bg-gradient-to-br from-primary to-secondary rounded-2xl flex items-center justify-center shadow-2xl">
+              <Gamepad2 className="w-12 h-12 text-white" />
+            </div>
           </div>
-          <h1 className="retro-font text-xl md:text-2xl font-bold mb-2 text-retro-white retro-text-shadow">
+          <h1 className="modern-font-heading text-2xl md:text-3xl font-bold mb-2 text-text-primary">
             ULAR TANGGA
           </h1>
-          <p className="retro-font text-sm text-retro-yellow retro-text-glow">
-            TRUTH OR DARE
+          <p className="modern-font-body text-base text-primary font-semibold">
+            Truth or Dare Edition
           </p>
-          <p className="text-sm text-retro-gray mt-2">
-            Press Start! 🎮
+          <p className="text-sm text-text-muted mt-2">
+            Press Start to begin! 🎮
           </p>
         </div>
 
         {/* Mode Selection */}
         <div className="mb-6">
-          <h2 className="retro-font text-xs font-bold mb-3 text-retro-white flex items-center gap-2">
-            <Sparkles className="w-5 h-5 text-retro-yellow animate-retro-pop" />
-            SELECT MODE
+          <h2 className="modern-font-heading text-sm font-bold mb-3 text-text-primary flex items-center gap-2">
+            <Sparkles className="w-5 h-5 text-accent-yellow" />
+            SELECT GAME MODE
           </h2>
-          <div className="grid grid-cols-2 gap-2">
+          <div className="grid grid-cols-2 gap-3">
             {GAME_MODES.map((mode, index) => {
               const Icon = mode.icon;
               return (
@@ -81,18 +83,18 @@ export default function PlayerSetup({ onStartGame }) {
                   key={mode.id}
                   onClick={() => setSelectedMode(mode.id)}
                   className={`
-                    retro-btn p-3 rounded flex flex-col items-center gap-1
+                    modern-btn p-3 rounded-xl flex flex-col items-center gap-2 transition-all
                     ${selectedMode === mode.id
-                      ? 'bg-retro-purple text-retro-white'
-                      : 'bg-retro-white text-retro-black'
+                      ? 'bg-primary text-white shadow-lg scale-105'
+                      : 'bg-bg-card text-text-primary hover:bg-bg-card hover:scale-102'
                     }
                     animate-retro-slide-up
                   `}
                   style={{ animationDelay: `${index * 100}ms` }}
                 >
                   <Icon className="w-6 h-6" />
-                  <span className="retro-font text-[10px] font-bold">{mode.name}</span>
-                  <span className="retro-font-body text-[8px] opacity-80">{mode.description}</span>
+                  <span className="modern-font-heading text-xs font-bold">{mode.name}</span>
+                  <span className="modern-font-body text-[10px] opacity-80">{mode.description}</span>
                 </button>
               );
             })}
@@ -102,11 +104,11 @@ export default function PlayerSetup({ onStartGame }) {
         {/* Player Setup */}
         <div className="mb-6">
           <div className="flex items-center justify-between mb-3">
-            <h2 className="retro-font text-xs font-bold text-retro-white flex items-center gap-2">
-              <Users className="w-5 h-5 text-retro-blue" />
-              PLAYERS
+            <h2 className="modern-font-heading text-sm font-bold text-text-primary flex items-center gap-2">
+              <Users className="w-5 h-5 text-primary" />
+              ADD PLAYERS
             </h2>
-            <span className="retro-badge bg-retro-yellow text-retro-black">
+            <span className="px-3 py-1 bg-primary text-white rounded-full modern-font-body text-xs font-semibold">
               {players.length}/8
             </span>
           </div>
@@ -119,7 +121,7 @@ export default function PlayerSetup({ onStartGame }) {
                 style={{ animationDelay: `${index * 50}ms` }}
               >
                 <div
-                  className={`retro-avatar w-10 h-10 rounded flex items-center justify-center text-white font-bold transition-transform hover:scale-110 ${player.color}`}
+                  className={`w-12 h-12 rounded-xl flex items-center justify-center text-white font-bold text-lg transition-transform hover:scale-110 shadow-2xl ring-2 ring-white ring-offset-2 ${player.color}`}
                 >
                   {player.id}
                 </div>
@@ -127,13 +129,13 @@ export default function PlayerSetup({ onStartGame }) {
                   type="text"
                   value={player.name}
                   onChange={(e) => updatePlayerName(player.id, e.target.value)}
-                  className="retro-input flex-1 px-3 py-2 rounded text-sm retro-font-body"
-                  placeholder={`P${player.id} NAME`}
+                  className="flex-1 px-4 py-2.5 rounded-xl border border-border-color bg-bg-dark text-text-primary modern-font-body text-sm focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent transition-all"
+                  placeholder={`Player ${player.id}`}
                 />
                 {players.length > 2 && (
                   <button
                     onClick={() => removePlayer(player.id)}
-                    className="retro-btn p-2 bg-retro-red text-retro-white rounded hover:bg-retro-red"
+                    className="modern-btn p-2.5 bg-bg-card border border-border-color rounded-xl hover:bg-accent-red hover:text-white transition-all"
                   >
                     <Trash2 className="w-4 h-4" />
                   </button>
@@ -145,7 +147,7 @@ export default function PlayerSetup({ onStartGame }) {
           {players.length < 8 && (
             <button
               onClick={addPlayer}
-              className="retro-btn w-full py-2.5 px-4 bg-retro-blue text-retro-white rounded flex items-center justify-center gap-2 retro-font text-xs"
+              className="modern-btn w-full py-3 px-4 bg-bg-card border border-border-color text-text-primary rounded-xl flex items-center justify-center gap-2 modern-font-heading text-xs hover:border-primary hover:text-primary transition-all"
             >
               <Plus className="w-4 h-4" />
               ADD PLAYER
@@ -158,33 +160,32 @@ export default function PlayerSetup({ onStartGame }) {
           onClick={handleStart}
           disabled={isAnimating}
           className={`
-            retro-btn w-full py-4 px-6 bg-retro-green text-retro-white rounded
-            font-bold retro-font text-sm
-            ${isAnimating ? 'animate-retro-pulse-glow' : ''}
+            modern-btn w-full py-4 px-6 modern-btn-success rounded-xl font-bold modern-font-heading text-base shadow-lg
+            ${isAnimating ? 'animate-pulse' : ''}
           `}
         >
           {isAnimating ? (
             <span className="flex items-center justify-center gap-2">
-              <div className="w-5 h-5 border-2 border-retro-white border-t-retro-black rounded-full animate-retro-coin-spin" />
+              <div className="w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin" />
               LOADING...
             </span>
           ) : (
             <span className="flex items-center justify-center gap-2">
               START GAME
-              <span className="animate-retro-blink">▶</span>
+              <span className="animate-pulse">▶</span>
             </span>
           )}
         </button>
 
         {/* Info */}
-        <div className="mt-4 grid grid-cols-2 gap-2 text-xs">
-          <div className="retro-card bg-retro-purple text-retro-white p-2 rounded text-center">
-            <p className="retro-font font-bold">🐍 SNAKE</p>
-            <p className="retro-font-body text-[10px] opacity-90">DOWN + HARD</p>
+        <div className="mt-4 grid grid-cols-2 gap-3 text-xs">
+          <div className="modern-card bg-gradient-to-br from-fun-purple to-fun-pink text-white p-3 rounded-xl text-center">
+            <p className="modern-font-heading font-bold text-sm">🐍 SNAKE</p>
+            <p className="modern-font-body text-[10px] opacity-90">Slide down + Truth</p>
           </div>
-          <div className="retro-card bg-retro-orange text-retro-white p-2 rounded text-center">
-            <p className="retro-font font-bold">🪜 LADDER</p>
-            <p className="retro-font-body text-[10px] opacity-90">UP + SKIP</p>
+          <div className="modern-card bg-gradient-to-br from-fun-orange to-accent-yellow text-white p-3 rounded-xl text-center">
+            <p className="modern-font-heading font-bold text-sm">🪜 LADDER</p>
+            <p className="modern-font-body text-[10px] opacity-90">Climb up + Skip</p>
           </div>
         </div>
       </div>
